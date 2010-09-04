@@ -1,0 +1,31 @@
+---
+abstract: 'Run multiple actions against multiple scenarios.'
+author:
+  - 'Chad Granum <exodist7@gmail.com>'
+build_requires:
+  Test::Exception: 0
+  Test::More: 0.88
+configure_requires:
+  Module::Build: 0.36
+generated_by: 'Module::Build version 0.3607'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Method-Workflow-Case
+provides:
+  Method::Workflow::Case:
+    file: lib/Method/Workflow/Case.pm
+    version: 0.001
+  Method::Workflow::Case::Action:
+    file: lib/Method/Workflow/Case/Action.pm
+requires:
+  Method::Workflow: 0.007
+  Scalar::Util: 0
+  aliased: 0
+resources:
+  bugtracker: http://github.com/exodist/Method-Workflow-Case/issues
+  homepage: http://open-exodus.net/projects/Method-Workflow-Case
+  license: http://dev.perl.org/licenses/
+  repository: http://github.com/exodist/Method-Workflow-Case
+version: 0.001
