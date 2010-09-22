@@ -2,63 +2,48 @@ package Method::Workflow::Case;
 use strict;
 use warnings;
 use Method::Workflow;
-use base 'Method::Workflow::Base';
-require Method::Workflow::Case::Action;
-use aliased 'Method::Workflow::Task';
-use Method::Workflow::Meta qw/ meta_for /;
-use Scalar::Util qw/ blessed /;
+use Method::Workflow::SubClass;
+use Exodist::Util qw/ alias blessed /;
+alias qw/
+    Method::Workflow
+    Method::Workflow::Task
+    Method::Workflow::Case::Action
+    Method::Workflow::Case::Case
+/;
 
-our $VERSION = '0.001';
+our $VERSION = '0.200';
 
-keyword 'case';
+keyword 'cases';
 
-sub import_hook {
+sub _import {
     my ( $class, $caller, $specs ) = @_;
-    Method::Workflow::Case::Action->export_to( $caller );
+    Workflow->_import( $caller, $specs );
+    $_->export_to( $caller, $specs ) for Workflow, Action, Case;
 }
 
-sub pre_run_hook {
-    Case => sub {
-        my %params = @_;
-        my $order;
+sub pre_child_run_hook {
+    my $self = shift;
+    my ( $invocant, $result ) = @_;
+    my @tasks;
 
-        if ( $params{current}->isa( 'Method::Workflow::Base' )) {
-            ($order) = grep { $params{current}->$_ } Task->order_options;
-        }
+    my @actions = $self->pull_children( Action );
+    my @cases   = $self->pull_children( Case   );
 
-        unless ( $order ) {
-            my $importer = blessed( $params{current} ) || $params{current};
-            my $spec = meta_for( __PACKAGE__ )->prop( $importer );
-            ($order) = grep { $spec->{$_} } Task->order_options
-                if $spec;
-        }
-
-        my @cases   = $params{meta}->pull_items( __PACKAGE__ );
-        my @actions = $params{meta}->pull_items( 'Method::Workflow::Case::Action' );
-        my @subtasks = map { Task->new(
-            task            => $_,
-            workflow        => $params{current},
-            owner           => $params{root},
-            _ordering       => $order || undef,
-        )} @actions;
-
-        my @tasks = map { Task->new(
-            before_all_ref  => [$_],
-            subtasks_ref    => \@subtasks,
-            _ordering       => $order || undef,
-            workflow        => $params{current},
-            owner           => $params{root},
-        )} @cases;
-
-        meta_for( $params{root} )->add_task(
-            $order ? Task->new(
-                subtasks_ref    => \@tasks,
-                _ordering       => $order || undef,
-                workflow        => $params{current},
-                owner           => $params{root},
-            ) : @tasks
+    for my $case ( @cases ) {
+        push @tasks => Task->new(
+            name => $case->name,
+            method => $case->method,
+            subtasks_ref => [ @actions ],
+            $self->ordering
+                ? ( $self->ordering => 1 )
+                : (),
+            $self->parent_ordering
+                ? ( parent_ordering => $self->parent_ordering )
+                : (),
         );
     }
+
+    $result->push_tasks( @tasks );
 }
 
 1;
@@ -87,20 +72,19 @@ of the details of running each action and scenario.
     use Test::More;
     use Method::Workflow::Case;
 
-    start_class_workflow();
-
     my $target;
     my @complete;
 
-    case a { $target = 'a' }
-    case b { $target = 'b' }
-    case c { $target = 'c' }
+    cases the_cases {
+        case a { $target = 'a' }
+        case b { $target = 'b' }
+        case c { $target = 'c' }
 
-    action 1 { push @complete => $target x 1 }
-    action 2 { push @complete => $target x 2 }
-    action 3 { push @complete => $target x 3 }
+        action 1 { push @complete => $target x 1 }
+        action 2 { push @complete => $target x 2 }
+        action 3 { push @complete => $target x 3 }
+    }
 
-    end_class_workflow();
     run_workflow;
 
     is_deeply(
