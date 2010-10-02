@@ -10,8 +10,8 @@ my $build = Module::Build->new(
     dist_author => 'Chad Granum <exodist7@gmail.com>',
     create_readme => 1,
     requires => {
-        'Method::Workflow' => '0.201',
-        'Exodist::Util' => '0.004',
+        'Method::Workflow' => '0.202',
+        'Exodist::Util' => '0.005',
     },
     build_requires => {
         'Test::More' => 0.88,

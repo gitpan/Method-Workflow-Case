@@ -11,14 +11,14 @@ alias qw/
     Method::Workflow::Case::Case
 /;
 
-our $VERSION = '0.200';
+our $VERSION = '0.201';
 
 keyword 'cases';
 
-sub _import {
+sub after_import {
     my ( $class, $caller, $specs ) = @_;
-    Workflow->_import( $caller, $specs );
-    $_->export_to( $caller, $specs ) for Workflow, Action, Case;
+    Workflow->after_import( $caller, $specs );
+    $_->export_to( $caller ) for Workflow, Action, Case;
 }
 
 sub pre_child_run_hook {

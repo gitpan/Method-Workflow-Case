@@ -16,17 +16,17 @@ name: Method-Workflow-Case
 provides:
   Method::Workflow::Case:
     file: lib/Method/Workflow/Case.pm
-    version: 0.200
+    version: 0.201
   Method::Workflow::Case::Action:
     file: lib/Method/Workflow/Case/Action.pm
   Method::Workflow::Case::Case:
     file: lib/Method/Workflow/Case/Case.pm
 requires:
-  Exodist::Util: 0.004
-  Method::Workflow: 0.201
+  Exodist::Util: 0.005
+  Method::Workflow: 0.202
 resources:
   bugtracker: http://github.com/exodist/Method-Workflow-Case/issues
   homepage: http://open-exodus.net/projects/Method-Workflow-Case
   license: http://dev.perl.org/licenses/
   repository: http://github.com/exodist/Method-Workflow-Case
-version: 0.200
+version: 0.201
